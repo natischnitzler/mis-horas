@@ -5,24 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>22 horas semanales</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap');
 
   :root{
-    --ink:#11141b;
-    --surface:#1a1f29;
-    --surface-2:#212836;
-    --line:#2b3242;
-    --amber:#e7a33e;
-    --amber-deep:#c98a2e;
-    --green:#5fb88f;
-    --red:#e2735a;
-    --text:#f3f1ec;
-    --muted:#8d93a3;
-    --muted-2:#5b6270;
+    --bg:#FFFAF0;
+    --surface:#FFFFFF;
+    --surface-2:#F6EAD4;
+    --line:#E7DBC2;
+    --primary:#0C5E8A;
+    --primary-deep:#093f5c;
+    --secondary:#5D9CBD;
+    --green:#798C5E;
+    --green-text:#54603c;
+    --tan:#DAC297;
+    --tan-text:#8a6a2e;
+    --red:#c1694b;
+    --text:#2b3138;
+    --muted:#7c7566;
+    --muted-2:#a89f8c;
   }
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-  html,body{ margin:0; padding:0; background:transparent; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
   body{
     font-family:'Inter', system-ui, sans-serif;
     color:var(--text);
@@ -43,10 +47,13 @@
     margin-bottom:4px;
   }
   .brand h1{
-    font-size:20px;
-    font-weight:800;
-    letter-spacing:-0.02em;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:23px;
+    letter-spacing:-0.01em;
     margin:0;
+    color:var(--primary-deep);
   }
   .brand .clock{
     font-family:'JetBrains Mono', monospace;
@@ -61,9 +68,10 @@
     justify-content:space-between;
     background:var(--surface);
     border:1px solid var(--line);
+    box-shadow:0 1px 2px rgba(43,49,56,0.03), 0 6px 18px rgba(43,49,56,0.05);
     border-radius:14px;
     padding:8px 10px;
-    margin:14px 0 18px;
+    margin:16px 0 18px;
   }
   .weeknav button{
     background:var(--surface-2);
@@ -98,7 +106,7 @@
     padding:0 10px;
     font-size:11px;
     font-weight:600;
-    color:var(--amber);
+    color:var(--primary);
     background:transparent;
     border:none;
   }
@@ -106,10 +114,11 @@
   /* ---------- Today punch card ---------- */
   .ticket{
     position:relative;
-    background:radial-gradient(120% 140% at 0% 0%, #202737 0%, #171b24 70%);
+    background:radial-gradient(120% 140% at 0% 0%, #FFFFFF 0%, var(--surface-2) 70%);
     border:1px solid var(--line);
-    border-radius:20px;
-    padding:20px 18px 18px;
+    box-shadow:0 1px 2px rgba(43,49,56,0.03), 0 10px 28px rgba(43,49,56,0.06);
+    border-radius:22px;
+    padding:22px 20px 20px;
     overflow:hidden;
     margin-bottom:16px;
   }
@@ -117,7 +126,7 @@
     content:"";
     position:absolute;
     width:22px;height:22px;
-    background:#0d1015;
+    background:var(--bg);
     border-radius:50%;
     top:50%;
     transform:translateY(-50%);
@@ -132,9 +141,12 @@
     margin-bottom:14px;
   }
   .ticket .day-name{
-    font-size:19px;
-    font-weight:800;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:24px;
     letter-spacing:-0.01em;
+    color:var(--primary-deep);
   }
   .ticket .day-sub{
     font-size:12px;
@@ -150,9 +162,9 @@
     border-radius:100px;
     white-space:nowrap;
   }
-  .status-pending{ background:rgba(231,163,62,0.15); color:var(--amber); }
-  .status-open{ background:rgba(95,184,143,0.15); color:var(--green); }
-  .status-done{ background:rgba(141,147,163,0.15); color:var(--muted); }
+  .status-pending{ background:rgba(218,194,151,0.4); color:var(--tan-text); }
+  .status-open{ background:rgba(121,140,94,0.16); color:var(--green-text); }
+  .status-done{ background:rgba(93,156,189,0.16); color:var(--primary); }
 
   .punch-grid{
     display:grid;
@@ -162,12 +174,12 @@
   }
   .punch-btn{
     border:none;
-    border-radius:14px;
-    padding:16px 10px;
+    border-radius:16px;
+    padding:17px 10px;
     font-family:'Inter', sans-serif;
-    font-weight:800;
+    font-weight:700;
     font-size:14px;
-    letter-spacing:0.02em;
+    letter-spacing:0.01em;
     cursor:pointer;
     display:flex;
     flex-direction:column;
@@ -182,8 +194,8 @@
     font-size:11px;
     opacity:0.85;
   }
-  .btn-in{ background:linear-gradient(180deg, var(--amber), var(--amber-deep)); color:#221604; }
-  .btn-out{ background:var(--surface-2); color:var(--text); border:1px solid var(--line); }
+  .btn-in{ background:linear-gradient(180deg, var(--primary), var(--primary-deep)); color:#FFFFFF; box-shadow:0 6px 16px rgba(12,94,138,0.25); }
+  .btn-out{ background:#FFFFFF; color:var(--text); border:1.5px solid var(--secondary); }
   .punch-btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; filter:none; }
 
   .stamp{
@@ -192,8 +204,8 @@
     font-family:'JetBrains Mono', monospace;
     font-size:10px;
     font-weight:700;
-    color:var(--amber);
-    border:1.5px solid var(--amber);
+    color:var(--primary);
+    border:1.5px solid var(--primary);
     border-radius:6px;
     padding:3px 6px;
     letter-spacing:0.06em;
@@ -239,30 +251,48 @@
     padding:0;
   }
   .manual-field input[type="time"]::-webkit-calendar-picker-indicator{
-    filter:invert(1) opacity(0.6);
+    filter:opacity(0.6);
   }
+
+  .pace-msg{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px 13px;
+    font-size:12.5px;
+    color:var(--text);
+    line-height:1.45;
+    margin-bottom:14px;
+  }
+  .pace-msg strong{ color:var(--primary); }
+  .pace-msg.good{ background:rgba(121,140,94,0.14); border-color:rgba(121,140,94,0.35); color:var(--green-text); }
+  .pace-msg.good strong{ color:var(--green-text); }
+  .pace-msg.off{ background:rgba(218,194,151,0.3); border-color:rgba(218,194,151,0.6); color:var(--tan-text); }
+  .pace-msg.off strong{ color:var(--tan-text); }
 
   /* ---------- Progress ---------- */
   .progress-card{
     background:var(--surface);
     border:1px solid var(--line);
-    border-radius:18px;
-    padding:18px;
+    box-shadow:0 1px 2px rgba(43,49,56,0.03), 0 10px 28px rgba(43,49,56,0.06);
+    border-radius:20px;
+    padding:20px;
     margin-bottom:16px;
   }
   .progress-top{
     display:flex;
     justify-content:space-between;
     align-items:baseline;
-    margin-bottom:10px;
+    margin-bottom:12px;
   }
   .progress-top .big{
-    font-family:'JetBrains Mono', monospace;
-    font-size:26px;
-    font-weight:700;
-    color:var(--text);
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:32px;
+    color:var(--primary-deep);
   }
   .progress-top .big span{
+    font-family:'Inter', sans-serif;
     font-size:14px;
     color:var(--muted);
     font-weight:500;
@@ -272,8 +302,8 @@
     color:var(--muted);
     text-align:right;
   }
-  .progress-msg strong{ color:var(--amber); font-weight:700; }
-  .progress-msg.done strong{ color:var(--green); }
+  .progress-msg strong{ color:var(--primary); font-weight:700; }
+  .progress-msg.done strong{ color:var(--green-text); }
 
   .bar-track{
     height:10px;
@@ -285,10 +315,10 @@
   .bar-fill{
     height:100%;
     border-radius:100px;
-    background:linear-gradient(90deg, var(--amber-deep), var(--amber));
+    background:linear-gradient(90deg, var(--primary-deep), var(--primary));
     transition:width .4s ease;
   }
-  .bar-fill.done{ background:linear-gradient(90deg, #3f8f6c, var(--green)); }
+  .bar-fill.done{ background:linear-gradient(90deg, #4c5a37, var(--green)); }
 
   /* ---------- Week list ---------- */
   .week-list{
@@ -307,33 +337,73 @@
   .day-row-compact{
     background:var(--surface);
     border:1px solid var(--line);
-    border-radius:14px;
-    padding:12px 14px;
-    display:grid;
-    grid-template-columns:64px 1fr 1fr 60px;
-    align-items:center;
-    gap:8px;
+    box-shadow:0 1px 2px rgba(43,49,56,0.03), 0 4px 12px rgba(43,49,56,0.04);
+    border-radius:16px;
+    padding:13px 15px;
   }
-  .day-row-compact.today{ border-color:rgba(231,163,62,0.5); }
+  .day-row-compact.today{ border-color:rgba(12,94,138,0.4); }
+  .day-row-compact.optional-off{ opacity:0.68; }
+
+  .drow-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:9px;
+  }
   .day-row-compact .dname{
     font-size:13px;
     font-weight:700;
+    white-space:nowrap;
   }
   .day-row-compact .dname small{
-    display:block;
+    display:inline-block;
+    margin-left:5px;
     font-size:10px;
     color:var(--muted-2);
     font-weight:500;
   }
+  .turno-toggle{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    flex:1;
+    justify-content:flex-end;
+    margin-right:4px;
+  }
+  .turno-toggle input{
+    width:15px; height:15px;
+    accent-color:var(--green);
+  }
+  .day-row-compact .dur{
+    text-align:right;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    font-weight:700;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .day-row-compact .dur.has{ color:var(--primary); }
+
+  .drow-fields{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
   .day-row-compact .field{
     display:flex;
     flex-direction:column;
+    min-width:0;
   }
   .day-row-compact .field label{
     font-size:9px;
     color:var(--muted-2);
     text-transform:uppercase;
     letter-spacing:0.06em;
+    margin-bottom:2px;
   }
   .day-row-compact input[type="time"]{
     background:var(--surface-2);
@@ -342,17 +412,19 @@
     color:var(--text);
     font-family:'JetBrains Mono', monospace;
     font-size:13px;
-    padding:5px 6px;
+    padding:6px 7px;
     width:100%;
+    min-width:0;
   }
-  .day-row-compact .dur{
-    text-align:right;
-    font-family:'JetBrains Mono', monospace;
-    font-size:13px;
-    font-weight:700;
-    color:var(--muted);
+  .day-row-compact input[type="time"]::-webkit-calendar-picker-indicator{
+    filter:opacity(0.6);
   }
-  .day-row-compact .dur.has{ color:var(--text); }
+  .turno-caption{
+    margin-top:8px;
+    font-size:10.5px;
+    line-height:1.4;
+    color:var(--muted-2);
+  }
 
   .footer-note{
     text-align:center;
@@ -424,11 +496,67 @@ function dayNameEs(date){
 function getWeekData(mondayDate){
   const k = weekKey(mondayDate);
   if(!weeks[k]){
-    weeks[k] = {};
+    weeks[k] = { turnoJueves:true };
     DAYS.forEach(d => weeks[k][d.key] = { in:null, out:null });
   }
   DAYS.forEach(d => { if(!weeks[k][d.key]) weeks[k][d.key] = { in:null, out:null }; });
+  if(typeof weeks[k].turnoJueves !== 'boolean') weeks[k].turnoJueves = true;
   return weeks[k];
+}
+
+// Un día cuenta para la meta de 22h, salvo el jueves cuando está marcado como "turno"
+// (turno = trabajo extra que no forma parte de las 22h obligatorias).
+function countsTowardGoal(wk, dayKey){
+  return dayKey !== 'thu' || !wk.turnoJueves;
+}
+function requiredDayKeys(wk){
+  return DAYS.filter(d => countsTowardGoal(wk, d.key)).map(d => d.key);
+}
+
+// Calcula si hoy podés distribuir mejor tu salida según lo ya trabajado esta semana.
+function computePaceMessage(wk, activeKey){
+  const reqKeys = requiredDayKeys(wk);
+  if(!activeKey || !reqKeys.includes(activeKey)) return null;
+
+  const entryToday = wk[activeKey];
+  if(entryToday.in && entryToday.out) return null; // el día ya está cerrado, nada que sugerir
+
+  const activeObj = DAYS.find(d => d.key === activeKey);
+
+  // Minutos ya trabajados en los otros días QUE CUENTAN para la meta
+  let otherMin = 0;
+  DAYS.forEach(d => {
+    if(d.key === activeKey) return;
+    if(!countsTowardGoal(wk, d.key)) return;
+    const m = computeDayMinutes(wk[d.key]);
+    if(m) otherMin += m;
+  });
+
+  // Días requeridos que quedan por cerrar (hoy inclusive, y los futuros aún no cerrados)
+  const daysLeft = reqKeys.filter(k => {
+    if(k === activeKey) return true;
+    const dObj = DAYS.find(x => x.key === k);
+    if(dObj.offset < activeObj.offset) return false; // día pasado, ya sea contado o perdido
+    const m = computeDayMinutes(wk[k]);
+    return !m; // solo cuenta si sigue sin cerrar
+  }).length || 1;
+
+  const remainingForRest = GOAL_MIN - otherMin;
+  const perDay = remainingForRest / daysLeft;
+
+  if(remainingForRest <= 0){
+    return { type:'good', text:'Ya cubriste tu meta semanal 🎉 Hoy podés salir cuando quieras.' };
+  }
+
+  if(entryToday.in){
+    const inM = minutesFromHM(entryToday.in);
+    const targetM = Math.round(inM + Math.max(perDay, 0));
+    const hh = Math.floor((targetM % 1440) / 60), mm = Math.round(targetM % 60);
+    return { type:'info', text:`Al ritmo actual, podés salir hoy a las <strong>${pad(hh)}:${pad(mm)}</strong> para ir a tiempo con la semana.` };
+  }
+
+  const h = Math.floor(perDay/60), m = Math.round(perDay%60);
+  return { type:'info', text:`Hoy necesitás cubrir cerca de <strong>${h}h ${pad(m)}m</strong> para ir a tiempo con la semana.` };
 }
 
 async function loadData(){
@@ -470,6 +598,7 @@ function render(){
 
   let totalMin = 0;
   DAYS.forEach(d => {
+    if(!countsTowardGoal(wk, d.key)) return;
     const m = computeDayMinutes(wk[d.key]);
     if(m) totalMin += m;
   });
@@ -509,6 +638,15 @@ function render(){
     else if(hasIn && !hasOut){ statusHtml = 'En curso'; statusClass='status-open'; }
     else { statusHtml = 'Jornada cerrada'; statusClass='status-done'; }
 
+    const isThuTurno = activeDay.key === 'thu' && wk.turnoJueves;
+    let paceHtml = '';
+    if(isThuTurno){
+      paceHtml = `<div class="pace-msg off">Hoy tenés <strong>turno</strong> — no cuenta para tu meta de 22h. Lo que trabajes hoy suma como horas extra.</div>`;
+    } else {
+      const pace = computePaceMessage(wk, activeDay.key);
+      if(pace) paceHtml = `<div class="pace-msg ${pace.type}">${pace.text}</div>`;
+    }
+
     html += `
     <div class="ticket">
       <div class="stamp" id="stampFx">MARCADO ✓</div>
@@ -519,6 +657,8 @@ function render(){
         </div>
         <div class="status-pill ${statusClass}">${statusHtml}</div>
       </div>
+
+      ${paceHtml}
 
       <div class="punch-grid">
         <button class="punch-btn btn-in" id="btnIn" ${hasIn ? 'disabled' : ''}>
@@ -574,18 +714,35 @@ function render(){
     const mins = computeDayMinutes(entry);
     const isToday = isCurrentWeek && d.key === activeKey;
     const dateForDay = addDays(viewingMonday, d.offset);
+    const isThuOptional = d.key === 'thu';
+    const isOff = isThuOptional && wk.turnoJueves;
+    const durText = durationLabel(mins);
+
+    const turnoToggle = isThuOptional
+      ? `<label class="turno-toggle"><input type="checkbox" id="turnoJuevesToggle" ${wk.turnoJueves ? 'checked' : ''}> Turno</label>`
+      : '';
+    const turnoCaption = isThuOptional
+      ? `<div class="turno-caption">${wk.turnoJueves ? 'Con turno marcado, el jueves no cuenta para las 22h — es extra.' : 'Sin turno: el jueves cuenta como un día más para las 22h.'}</div>`
+      : '';
+
     html += `
-    <div class="day-row-compact ${isToday ? 'today' : ''}">
-      <div class="dname">${d.short}<small>${dayNameEs(dateForDay)}</small></div>
-      <div class="field">
-        <label>Entrada</label>
-        <input type="time" data-day="${d.key}" data-field="in" value="${entry.in || ''}">
+    <div class="day-row-compact ${isToday ? 'today' : ''} ${isOff ? 'optional-off' : ''}">
+      <div class="drow-top">
+        <div class="dname">${d.short}<small>${dayNameEs(dateForDay)}</small></div>
+        ${turnoToggle}
+        <div class="dur ${mins ? 'has' : ''}">${durText}</div>
       </div>
-      <div class="field">
-        <label>Salida</label>
-        <input type="time" data-day="${d.key}" data-field="out" value="${entry.out || ''}">
+      <div class="drow-fields">
+        <div class="field">
+          <label>Entrada</label>
+          <input type="time" data-day="${d.key}" data-field="in" value="${entry.in || ''}">
+        </div>
+        <div class="field">
+          <label>Salida</label>
+          <input type="time" data-day="${d.key}" data-field="out" value="${entry.out || ''}">
+        </div>
       </div>
-      <div class="dur ${mins ? 'has' : ''}">${durationLabel(mins)}</div>
+      ${turnoCaption}
     </div>
     `;
   });
@@ -643,6 +800,14 @@ function attachEvents(){
     render();
   };
 
+  const turnoToggle = document.getElementById('turnoJuevesToggle');
+  if(turnoToggle) turnoToggle.onchange = async (e) => {
+    const wk = getWeekData(viewingMonday);
+    wk.turnoJueves = e.target.checked;
+    await saveData();
+    render();
+  };
+
   document.querySelectorAll('.day-row-compact input[type="time"]').forEach(inp => {
     inp.onchange = async (e) => {
       const day = e.target.getAttribute('data-day');
@@ -671,10 +836,19 @@ function tickClock(){
 }
 
 (async function init(){
-  await loadData();
-  render();
-  tickClock();
-  setInterval(tickClock, 1000);
+  try{
+    await loadData();
+    render();
+    tickClock();
+    setInterval(tickClock, 1000);
+  }catch(err){
+    document.getElementById('app').innerHTML =
+      '<div class="loading">Uy, algo falló al cargar.<br><br>' +
+      '<span style="color:#c1694b; font-family:monospace; font-size:11px;">' +
+      (err && err.message ? err.message : String(err)) +
+      '</span></div>';
+    console.error(err);
+  }
 })();
 </script>
 </body>
