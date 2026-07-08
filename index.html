@@ -433,15 +433,24 @@ function getWeekData(mondayDate){
 
 async function loadData(){
   try{
+<<<<<<< HEAD
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) weeks = JSON.parse(raw);
+=======
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value) weeks = JSON.parse(res.value);
+>>>>>>> 9d39e6014f1b04b5ce708e75750a8ff52d7dfcb4
   }catch(e){
     weeks = {};
   }
 }
 async function saveData(){
   try{
+<<<<<<< HEAD
     localStorage.setItem(STORAGE_KEY, JSON.stringify(weeks));
+=======
+    await window.storage.set(STORAGE_KEY, JSON.stringify(weeks), false);
+>>>>>>> 9d39e6014f1b04b5ce708e75750a8ff52d7dfcb4
   }catch(e){
     console.error('No se pudo guardar', e);
   }
