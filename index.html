@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>22 horas semanales</title>
+<title>Mis horas</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap');
 
@@ -61,6 +61,23 @@
     color:var(--muted);
     font-variant-numeric: tabular-nums;
   }
+  .brand-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .gear-btn{
+    width:30px; height:30px;
+    border-radius:9px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color:var(--muted);
+    font-size:15px;
+    flex-shrink:0;
+  }
+  .gear-btn:active{ background:var(--surface-2); }
 
   .weeknav{
     display:flex;
@@ -440,6 +457,131 @@
     color:var(--muted);
     font-size:13px;
   }
+
+  /* ---------- Settings modal ---------- */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(43,49,56,0.42);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+    padding:0;
+  }
+  .modal-card{
+    background:var(--bg);
+    width:100%;
+    max-width:460px;
+    max-height:88vh;
+    overflow-y:auto;
+    border-radius:22px 22px 0 0;
+    padding:22px 20px 28px;
+    box-shadow:0 -8px 30px rgba(43,49,56,0.15);
+  }
+  .modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .modal-head h2{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:20px;
+    color:var(--primary-deep);
+    margin:0;
+  }
+  .modal-close{
+    width:30px; height:30px;
+    border-radius:9px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-size:15px;
+    cursor:pointer;
+  }
+  .settings-block{
+    margin-bottom:20px;
+  }
+  .settings-block label.block-label{
+    display:block;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--muted-2);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .settings-block input[type="number"],
+  .settings-block select{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:15px;
+    color:var(--text);
+  }
+  .day-checks{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .day-check{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:7px 12px 7px 10px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .day-check input{
+    width:14px; height:14px;
+    accent-color:var(--primary);
+  }
+  .settings-hint{
+    font-size:11.5px;
+    color:var(--muted);
+    line-height:1.5;
+    margin-top:8px;
+  }
+  .export-btn{
+    width:100%;
+    background:var(--primary);
+    color:#FFFFFF;
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .export-btn:active{ filter:brightness(0.92); }
+  .save-btn{
+    width:100%;
+    background:var(--green);
+    color:#FFFFFF;
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    margin-top:6px;
+  }
 </style>
 </head>
 <body>
@@ -448,19 +590,28 @@
 </div>
 
 <script>
-const DAYS = [
+const ALL_DAYS = [
   { key:'mon', label:'Lunes',     short:'Lun', offset:0 },
   { key:'tue', label:'Martes',    short:'Mar', offset:1 },
   { key:'wed', label:'Miércoles', short:'Mié', offset:2 },
   { key:'thu', label:'Jueves',    short:'Jue', offset:3 },
   { key:'fri', label:'Viernes',   short:'Vie', offset:4 },
+  { key:'sat', label:'Sábado',    short:'Sáb', offset:5 },
+  { key:'sun', label:'Domingo',   short:'Dom', offset:6 },
 ];
-const GOAL_MIN = 22 * 60;
 const STORAGE_KEY = 'weeks';
+const SETTINGS_KEY = 'settings';
+const DEFAULT_SETTINGS = { goalHours:22, turnoDay:'thu', activeDays:['mon','tue','wed','thu','fri'] };
+
+let settings = { ...DEFAULT_SETTINGS };
+let DAYS = ALL_DAYS.filter(d => settings.activeDays.includes(d.key));
+
+function goalMin(){ return Math.round(settings.goalHours * 60); }
 
 let weeks = {};          // { 'YYYY-MM-DD': { mon:{in,out}, ... } }
 let viewingMonday = mondayOf(new Date());
 const todayMonday = mondayOf(new Date());
+let settingsOpen = false;
 
 function pad(n){ return String(n).padStart(2,'0'); }
 function fmtDate(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
@@ -504,10 +655,10 @@ function getWeekData(mondayDate){
   return weeks[k];
 }
 
-// Un día cuenta para la meta de 22h, salvo el jueves cuando está marcado como "turno"
-// (turno = trabajo extra que no forma parte de las 22h obligatorias).
+// Un día cuenta para la meta, salvo el día de turno configurado cuando está marcado
+// (turno = trabajo extra que no forma parte de las horas obligatorias).
 function countsTowardGoal(wk, dayKey){
-  return dayKey !== 'thu' || !wk.turnoJueves;
+  return dayKey !== settings.turnoDay || !wk.turnoJueves;
 }
 function requiredDayKeys(wk){
   return DAYS.filter(d => countsTowardGoal(wk, d.key)).map(d => d.key);
@@ -541,7 +692,7 @@ function computePaceMessage(wk, activeKey){
     return !m; // solo cuenta si sigue sin cerrar
   }).length || 1;
 
-  const remainingForRest = GOAL_MIN - otherMin;
+  const remainingForRest = goalMin() - otherMin;
   const perDay = remainingForRest / daysLeft;
 
   if(remainingForRest <= 0){
@@ -566,6 +717,19 @@ async function loadData(){
   }catch(e){
     weeks = {};
   }
+  try{
+    const rawSettings = localStorage.getItem(SETTINGS_KEY);
+    if(rawSettings){
+      const parsed = JSON.parse(rawSettings);
+      settings = { ...DEFAULT_SETTINGS, ...parsed };
+      if(!Array.isArray(settings.activeDays) || settings.activeDays.length === 0){
+        settings.activeDays = DEFAULT_SETTINGS.activeDays;
+      }
+    }
+  }catch(e){
+    settings = { ...DEFAULT_SETTINGS };
+  }
+  DAYS = ALL_DAYS.filter(d => settings.activeDays.includes(d.key));
 }
 async function saveData(){
   try{
@@ -574,12 +738,21 @@ async function saveData(){
     console.error('No se pudo guardar', e);
   }
 }
+async function saveSettings(){
+  try{
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }catch(e){
+    console.error('No se pudo guardar la configuración', e);
+  }
+  DAYS = ALL_DAYS.filter(d => settings.activeDays.includes(d.key));
+}
 
 function todayKeyIfCurrentWeek(){
   if(weekKey(viewingMonday) !== weekKey(todayMonday)) return null;
-  const jsDay = new Date().getDay(); // 0..6
-  const map = {1:'mon',2:'tue',3:'wed',4:'thu',5:'fri'};
-  return map[jsDay] || null;
+  const jsDay = new Date().getDay(); // 0..6, 0=domingo
+  const map = {0:'sun',1:'mon',2:'tue',3:'wed',4:'thu',5:'fri',6:'sat'};
+  const key = map[jsDay];
+  return DAYS.some(d => d.key === key) ? key : null;
 }
 
 function computeDayMinutes(entry){
@@ -602,19 +775,24 @@ function render(){
     const m = computeDayMinutes(wk[d.key]);
     if(m) totalMin += m;
   });
-  const remaining = GOAL_MIN - totalMin;
-  const pct = Math.min(100, Math.round((totalMin/GOAL_MIN)*100));
+  const GOAL = goalMin();
+  const remaining = GOAL - totalMin;
+  const pct = Math.min(100, Math.round((totalMin/GOAL)*100));
 
+  const maxOffset = DAYS.length ? Math.max(...DAYS.map(d => d.offset)) : 0;
   const rangeStart = viewingMonday;
-  const rangeEnd = addDays(viewingMonday, 4);
+  const rangeEnd = addDays(viewingMonday, maxOffset);
   const rangeLabel = dayNameEs(rangeStart) + ' – ' + dayNameEs(rangeEnd);
 
   let html = '';
 
   html += `
   <div class="brand">
-    <h1>22 horas semanales</h1>
-    <div class="clock" id="liveClock">--:--:--</div>
+    <h1>Mis horas</h1>
+    <div class="brand-right">
+      <div class="clock" id="liveClock">--:--:--</div>
+      <button class="gear-btn" id="openSettings" aria-label="Configuración">⚙</button>
+    </div>
   </div>
 
   <div class="weeknav">
@@ -638,10 +816,10 @@ function render(){
     else if(hasIn && !hasOut){ statusHtml = 'En curso'; statusClass='status-open'; }
     else { statusHtml = 'Jornada cerrada'; statusClass='status-done'; }
 
-    const isThuTurno = activeDay.key === 'thu' && wk.turnoJueves;
+    const isTurnoToday = activeDay.key === settings.turnoDay && wk.turnoJueves;
     let paceHtml = '';
-    if(isThuTurno){
-      paceHtml = `<div class="pace-msg off">Hoy tenés <strong>turno</strong> — no cuenta para tu meta de 22h. Lo que trabajes hoy suma como horas extra.</div>`;
+    if(isTurnoToday){
+      paceHtml = `<div class="pace-msg off">Hoy tenés <strong>turno</strong> — no cuenta para tu meta. Lo que trabajes hoy suma como horas extra.</div>`;
     } else {
       const pace = computePaceMessage(wk, activeDay.key);
       if(pace) paceHtml = `<div class="pace-msg ${pace.type}">${pace.text}</div>`;
@@ -696,7 +874,7 @@ function render(){
   html += `
   <div class="progress-card">
     <div class="progress-top">
-      <div class="big">${(totalMin/60).toFixed(1)}<span> / 22 h</span></div>
+      <div class="big">${(totalMin/60).toFixed(1)}<span> / ${settings.goalHours} h</span></div>
       <div class="progress-msg ${doneClass}">
         ${remaining <= 0
           ? `¡Meta cumplida! <strong>+${longDurationLabel(remaining)}</strong>`
@@ -714,15 +892,15 @@ function render(){
     const mins = computeDayMinutes(entry);
     const isToday = isCurrentWeek && d.key === activeKey;
     const dateForDay = addDays(viewingMonday, d.offset);
-    const isThuOptional = d.key === 'thu';
-    const isOff = isThuOptional && wk.turnoJueves;
+    const isTurnoDay = d.key === settings.turnoDay;
+    const isOff = isTurnoDay && wk.turnoJueves;
     const durText = durationLabel(mins);
 
-    const turnoToggle = isThuOptional
+    const turnoToggle = isTurnoDay
       ? `<label class="turno-toggle"><input type="checkbox" id="turnoJuevesToggle" ${wk.turnoJueves ? 'checked' : ''}> Turno</label>`
       : '';
-    const turnoCaption = isThuOptional
-      ? `<div class="turno-caption">${wk.turnoJueves ? 'Con turno marcado, el jueves no cuenta para las 22h — es extra.' : 'Sin turno: el jueves cuenta como un día más para las 22h.'}</div>`
+    const turnoCaption = isTurnoDay
+      ? `<div class="turno-caption">${wk.turnoJueves ? `Con turno marcado, ${d.label.toLowerCase()} no cuenta para tu meta — es extra.` : `Sin turno: ${d.label.toLowerCase()} cuenta como un día más para tu meta.`}</div>`
       : '';
 
     html += `
@@ -750,8 +928,59 @@ function render(){
 
   html += `<div class="footer-note">Tus horas se guardan solas en este dispositivo.<br>Tocá "Llegué" o "Me fui" para registrar la hora actual, o editá cualquier campo a mano.</div>`;
 
+  if(settingsOpen){
+    html += renderSettingsModal();
+  }
+
   document.getElementById('app').innerHTML = html;
   attachEvents();
+}
+
+function renderSettingsModal(){
+  const dayChecks = ALL_DAYS.map(d => `
+    <label class="day-check">
+      <input type="checkbox" class="active-day-check" value="${d.key}" ${settings.activeDays.includes(d.key) ? 'checked' : ''}>
+      ${d.short}
+    </label>
+  `).join('');
+
+  const turnoOptions = ALL_DAYS.map(d => `<option value="${d.key}" ${settings.turnoDay === d.key ? 'selected' : ''}>${d.label}</option>`).join('');
+
+  return `
+  <div class="modal-overlay" id="settingsOverlay">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Configuración</h2>
+        <button class="modal-close" id="closeSettings">✕</button>
+      </div>
+
+      <div class="settings-block">
+        <label class="block-label">Meta semanal (horas)</label>
+        <input type="number" id="goalHoursInput" value="${settings.goalHours}" min="1" max="80" step="0.5">
+      </div>
+
+      <div class="settings-block">
+        <label class="block-label">Días que usás</label>
+        <div class="day-checks">${dayChecks}</div>
+        <div class="settings-hint">Tildá los días que querés ver en tu semana.</div>
+      </div>
+
+      <div class="settings-block">
+        <label class="block-label">Día de turno (no cuenta para la meta)</label>
+        <select id="turnoDaySelect">${turnoOptions}</select>
+        <div class="settings-hint">Ese día vas a poder tildar "Turno" para que las horas trabajadas ahí no sumen a tu meta semanal — quedan como extra.</div>
+      </div>
+
+      <div class="settings-block">
+        <label class="block-label">Historial completo</label>
+        <button class="export-btn" id="exportCsvBtn">⬇ Descargar histórico (.csv)</button>
+        <div class="settings-hint">Se abre directamente en Excel o Google Sheets, con todas las semanas guardadas.</div>
+      </div>
+
+      <button class="save-btn" id="saveSettingsBtn">Guardar</button>
+    </div>
+  </div>
+  `;
 }
 
 function attachEvents(){
@@ -818,6 +1047,38 @@ function attachEvents(){
       render();
     };
   });
+
+  const openSettingsBtn = document.getElementById('openSettings');
+  if(openSettingsBtn) openSettingsBtn.onclick = () => { settingsOpen = true; render(); };
+
+  const closeSettingsBtn = document.getElementById('closeSettings');
+  if(closeSettingsBtn) closeSettingsBtn.onclick = () => { settingsOpen = false; render(); };
+
+  const overlay = document.getElementById('settingsOverlay');
+  if(overlay) overlay.addEventListener('click', (e) => {
+    if(e.target === overlay){ settingsOpen = false; render(); }
+  });
+
+  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+  if(saveSettingsBtn) saveSettingsBtn.onclick = async () => {
+    const goalInput = document.getElementById('goalHoursInput');
+    const turnoSelect = document.getElementById('turnoDaySelect');
+    const checks = document.querySelectorAll('.active-day-check:checked');
+
+    const newGoal = parseFloat(goalInput.value);
+    settings.goalHours = (isFinite(newGoal) && newGoal > 0) ? newGoal : DEFAULT_SETTINGS.goalHours;
+    settings.turnoDay = turnoSelect.value;
+
+    const newActiveDays = Array.from(checks).map(c => c.value);
+    settings.activeDays = newActiveDays.length ? newActiveDays : DEFAULT_SETTINGS.activeDays;
+
+    await saveSettings();
+    settingsOpen = false;
+    render();
+  };
+
+  const exportBtn = document.getElementById('exportCsvBtn');
+  if(exportBtn) exportBtn.onclick = () => exportHistoryCsv();
 }
 
 function fireStamp(){
@@ -826,6 +1087,50 @@ function fireStamp(){
   stamp.classList.remove('show');
   void stamp.offsetWidth;
   stamp.classList.add('show');
+}
+
+function csvEscape(val){
+  const s = String(val == null ? '' : val);
+  if(/[",\n;]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function exportHistoryCsv(){
+  const rows = [['Semana (lunes)', 'Día', 'Fecha', 'Entrada', 'Salida', 'Horas trabajadas', 'Cuenta para la meta', 'Turno marcado']];
+
+  const sortedWeekKeys = Object.keys(weeks).sort();
+  sortedWeekKeys.forEach(wkKey => {
+    const wk = weeks[wkKey];
+    const monday = new Date(wkKey + 'T00:00:00');
+    ALL_DAYS.forEach(d => {
+      const entry = wk[d.key];
+      if(!entry || (!entry.in && !entry.out)) return; // no hay nada cargado ese día
+      const mins = computeDayMinutes(entry);
+      const dateForDay = addDays(monday, d.offset);
+      const counts = countsTowardGoal(wk, d.key) ? 'Sí' : 'No';
+      rows.push([
+        wkKey,
+        d.label,
+        fmtDate(dateForDay),
+        entry.in || '',
+        entry.out || '',
+        mins != null ? (mins/60).toFixed(2) : '',
+        counts,
+        (d.key === settings.turnoDay) ? (wk.turnoJueves ? 'Sí' : 'No') : ''
+      ]);
+    });
+  });
+
+  const csvContent = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csvContent], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mis-horas-historico.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function tickClock(){
