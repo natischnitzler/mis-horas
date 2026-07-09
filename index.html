@@ -664,7 +664,10 @@ function requiredDayKeys(wk){
   return DAYS.filter(d => countsTowardGoal(wk, d.key)).map(d => d.key);
 }
 
-// Calcula si hoy podés distribuir mejor tu salida según lo ya trabajado esta semana.
+// Calcula si hoy podés salir antes/después según lo ya trabajado esta semana.
+// Cada día requerido tiene un objetivo fijo (meta ÷ días requeridos). Si venís
+// adelantado, ese adelanto se descuenta completo del día de hoy (no se reparte
+// entre los días que quedan) — así "si salís después un día, salís antes el próximo".
 function computePaceMessage(wk, activeKey){
   const reqKeys = requiredDayKeys(wk);
   if(!activeKey || !reqKeys.includes(activeKey)) return null;
@@ -673,41 +676,38 @@ function computePaceMessage(wk, activeKey){
   if(entryToday.in && entryToday.out) return null; // el día ya está cerrado, nada que sugerir
 
   const activeObj = DAYS.find(d => d.key === activeKey);
+  const GOAL = goalMin();
+  const perDayFixed = GOAL / reqKeys.length;
 
-  // Minutos ya trabajados en los otros días QUE CUENTAN para la meta
-  let otherMin = 0;
-  DAYS.forEach(d => {
-    if(d.key === activeKey) return;
-    if(!countsTowardGoal(wk, d.key)) return;
-    const m = computeDayMinutes(wk[d.key]);
-    if(m) otherMin += m;
+  // Minutos trabajados y cantidad de días requeridos que ya pasaron (antes de hoy)
+  let workedBeforeToday = 0;
+  let requiredDaysBeforeToday = 0;
+  reqKeys.forEach(k => {
+    const dObj = DAYS.find(x => x.key === k);
+    if(dObj.offset < activeObj.offset){
+      requiredDaysBeforeToday++;
+      const m = computeDayMinutes(wk[k]);
+      if(m) workedBeforeToday += m;
+    }
   });
 
-  // Días requeridos que quedan por cerrar (hoy inclusive, y los futuros aún no cerrados)
-  const daysLeft = reqKeys.filter(k => {
-    if(k === activeKey) return true;
-    const dObj = DAYS.find(x => x.key === k);
-    if(dObj.offset < activeObj.offset) return false; // día pasado, ya sea contado o perdido
-    const m = computeDayMinutes(wk[k]);
-    return !m; // solo cuenta si sigue sin cerrar
-  }).length || 1;
-
-  const remainingForRest = goalMin() - otherMin;
-  const perDay = remainingForRest / daysLeft;
-
-  if(remainingForRest <= 0){
-    return { type:'good', text:'Ya cubriste tu meta semanal 🎉 Hoy podés salir cuando quieras.' };
+  if(workedBeforeToday >= GOAL){
+    return { type:'good', text:'¡Ya cumpliste tu meta semanal! Hoy puedes salir cuando quieras 🎉' };
   }
+
+  const expectedByNow = perDayFixed * requiredDaysBeforeToday;
+  const balance = workedBeforeToday - expectedByNow; // + = adelantado, - = atrasado
+  const neededToday = Math.max(perDayFixed - balance, 0);
 
   if(entryToday.in){
     const inM = minutesFromHM(entryToday.in);
-    const targetM = Math.round(inM + Math.max(perDay, 0));
+    const targetM = Math.round(inM + neededToday);
     const hh = Math.floor((targetM % 1440) / 60), mm = Math.round(targetM % 60);
-    return { type:'info', text:`Al ritmo actual, podés salir hoy a las <strong>${pad(hh)}:${pad(mm)}</strong> para ir a tiempo con la semana.` };
+    return { type:'info', text:`Al ritmo actual, hoy te alcanza con salir a las <strong>${pad(hh)}:${pad(mm)}</strong>.` };
   }
 
-  const h = Math.floor(perDay/60), m = Math.round(perDay%60);
-  return { type:'info', text:`Hoy necesitás cubrir cerca de <strong>${h}h ${pad(m)}m</strong> para ir a tiempo con la semana.` };
+  const h = Math.floor(neededToday/60), m = Math.round(neededToday%60);
+  return { type:'info', text:`Hoy tienes que cubrir cerca de <strong>${h}h ${pad(m)}m</strong> para ir al día.` };
 }
 
 async function loadData(){
@@ -819,7 +819,7 @@ function render(){
     const isTurnoToday = activeDay.key === settings.turnoDay && wk.turnoJueves;
     let paceHtml = '';
     if(isTurnoToday){
-      paceHtml = `<div class="pace-msg off">Hoy tenés <strong>turno</strong> — no cuenta para tu meta. Lo que trabajes hoy suma como horas extra.</div>`;
+      paceHtml = `<div class="pace-msg off">Hoy tienes <strong>turno</strong>: no cuenta para tu meta, es horas extra.</div>`;
     } else {
       const pace = computePaceMessage(wk, activeDay.key);
       if(pace) paceHtml = `<div class="pace-msg ${pace.type}">${pace.text}</div>`;
