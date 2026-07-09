@@ -515,6 +515,7 @@
     margin-bottom:8px;
   }
   .settings-block input[type="number"],
+  .settings-block input[type="time"],
   .settings-block select{
     width:100%;
     background:var(--surface);
@@ -601,12 +602,19 @@ const ALL_DAYS = [
 ];
 const STORAGE_KEY = 'weeks';
 const SETTINGS_KEY = 'settings';
-const DEFAULT_SETTINGS = { goalHours:22, turnoDay:'thu', activeDays:['mon','tue','wed','thu','fri'] };
+const DEFAULT_SETTINGS = { goalHours:22, turnoDay:'thu', activeDays:['mon','tue','wed','thu','fri'], standardIn:'08:00', standardOut:'13:30' };
 
 let settings = { ...DEFAULT_SETTINGS };
 let DAYS = ALL_DAYS.filter(d => settings.activeDays.includes(d.key));
 
 function goalMin(){ return Math.round(settings.goalHours * 60); }
+function standardDayMinutes(){
+  const a = minutesFromHM(settings.standardIn);
+  const b = minutesFromHM(settings.standardOut);
+  if(a == null || b == null) return null;
+  const diff = b - a;
+  return diff > 0 ? diff : null;
+}
 
 let weeks = {};          // { 'YYYY-MM-DD': { mon:{in,out}, ... } }
 let viewingMonday = mondayOf(new Date());
@@ -677,7 +685,10 @@ function computePaceMessage(wk, activeKey){
 
   const activeObj = DAYS.find(d => d.key === activeKey);
   const GOAL = goalMin();
-  const perDayFixed = GOAL / reqKeys.length;
+  // El objetivo por día es tu horario habitual (fijo), no la meta repartida entre
+  // los días que cuenten esta semana en particular — así el cálculo no cambia según
+  // si tildás o destildás el turno.
+  const perDayFixed = standardDayMinutes() || (GOAL / reqKeys.length);
 
   // Minutos trabajados y cantidad de días requeridos que ya pasaron (antes de hoy)
   let workedBeforeToday = 0;
@@ -960,6 +971,21 @@ function renderSettingsModal(){
       </div>
 
       <div class="settings-block">
+        <label class="block-label">Horario tipo</label>
+        <div class="day-checks" style="gap:10px;">
+          <div style="flex:1; min-width:120px;">
+            <div class="settings-hint" style="margin:0 0 4px;">Entrada habitual</div>
+            <input type="time" id="standardInInput" value="${settings.standardIn}">
+          </div>
+          <div style="flex:1; min-width:120px;">
+            <div class="settings-hint" style="margin:0 0 4px;">Salida habitual</div>
+            <input type="time" id="standardOutInput" value="${settings.standardOut}">
+          </div>
+        </div>
+        <div class="settings-hint">Es el objetivo fijo de cada día para calcular a qué hora podés salir — no cambia aunque tildes o destildes el turno.</div>
+      </div>
+
+      <div class="settings-block">
         <label class="block-label">Días que usás</label>
         <div class="day-checks">${dayChecks}</div>
         <div class="settings-hint">Tildá los días que querés ver en tu semana.</div>
@@ -1068,6 +1094,11 @@ function attachEvents(){
     const newGoal = parseFloat(goalInput.value);
     settings.goalHours = (isFinite(newGoal) && newGoal > 0) ? newGoal : DEFAULT_SETTINGS.goalHours;
     settings.turnoDay = turnoSelect.value;
+
+    const standardInInput = document.getElementById('standardInInput');
+    const standardOutInput = document.getElementById('standardOutInput');
+    settings.standardIn = standardInInput.value || DEFAULT_SETTINGS.standardIn;
+    settings.standardOut = standardOutInput.value || DEFAULT_SETTINGS.standardOut;
 
     const newActiveDays = Array.from(checks).map(c => c.value);
     settings.activeDays = newActiveDays.length ? newActiveDays : DEFAULT_SETTINGS.activeDays;
